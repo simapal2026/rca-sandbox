@@ -1,0 +1,31 @@
+# API CONTRACT: POST /payments
+#
+# Consumers depend on this file. It must not be changed by an automated fix.
+# Changes need an API review and a version bump.
+openapi: 3.0.3
+info:
+  title: Payments API
+  version: 1.0.0
+paths:
+  /payments:
+    post:
+      summary: Submit a payment
+      request:
+        customer_id: string
+        amount: number greater than 0
+      responses:
+        "200":
+          description: Payment accepted
+          body:
+            payment_id: string
+            status: ACCEPTED
+            amount: number
+            fee: number
+            total: number
+        "400":
+          description: Payment rejected because the amount is missing or not a positive number
+          body:
+            status: REJECTED
+            error:
+              code: INVALID_AMOUNT
+              message: string
