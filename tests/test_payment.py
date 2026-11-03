@@ -53,5 +53,26 @@ class MissingAmount(unittest.TestCase):
         self.assertIn(body["error"]["code"], CONTRACT_ERROR_CODES)
 
 
+class InvalidAmount(unittest.TestCase):
+    """Regression tests for DEF-SBX-001: every invalid amount is a 400, never an exception."""
+
+    def test_invalid_amounts_are_rejected_with_400(self) -> None:
+        cases = {
+            "none": None,
+            "zero": 0,
+            "negative": -5,
+            "nan": float("nan"),
+            "infinity": float("inf"),
+            "numeric string": "100",
+            "boolean": True,
+        }
+        for label, amount in cases.items():
+            with self.subTest(label):
+                status, body = process_payment({"customer_id": "C-1", "amount": amount})
+                self.assertEqual(status, 400)
+                self.assertEqual(body["status"], "REJECTED")
+                self.assertEqual(body["error"]["code"], "INVALID_AMOUNT")
+
+
 if __name__ == "__main__":
     unittest.main()
